@@ -1,0 +1,33 @@
+class: "GraphSearchTest"
+algorithm: "depthFirstSearch"
+
+diagram: """
+"""
+# The following section specifies the search problem and the solution.
+# The graph is specified by first the set of start states, followed by
+# the set of goal states, and lastly by the state transitions which are
+# of the form: 
+#      <start state> <actions> <end state> <cost>
+graph: """
+start_state: A
+goal_states: G
+A 0:A->B B 1.0
+B 0:B->C C 1.5
+B 1:B->E E 1.0
+B 2:B->D D 3.5
+C 0:C->E E 1.5
+C 1:C->F F 2.0
+C 2:C->G G 4.0
+D 0:D->F F 2.5
+E 0:E->F F 1.0
+F 0:F->G G 1.2
+"""
+heuristic: """
+A 4.2
+B 3.2
+C 4
+D 3.2
+E 2.2
+F 1.2
+G 0
+"""
