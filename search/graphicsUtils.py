@@ -330,7 +330,7 @@ def move_to(object, x, y=None,
             d_w=tkinter._tkinter.DONT_WAIT):
     if y is None:
         try: x, y = x
-        except: raise  'incomprehensible coordinates'
+        except: raise Exception('incomprehensible coordinates')
 
     horiz = True
     newCoords = []
