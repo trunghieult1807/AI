@@ -1,8 +1,5 @@
 
 import multiprocessing
-import random
-import threading
-import numpy as np
 
 
 def check_empty(grid):
@@ -129,17 +126,6 @@ def check_full(grid):
                 return False
     return True
 
-
-def checkState(board):
-    pattern_dic = get_all_patterns(board)
-    if 'XXXXX' in pattern_dic or 'OXXXXX' in pattern_dic or 'XXXXXO' in pattern_dic:
-        return 100000
-    elif 'OOOOO' in pattern_dic or 'XOOOOO' in pattern_dic or 'OOOOOX' in pattern_dic:
-        return -100000
-    else:
-        if check_full(board):
-            return "tie"
-        return 0
 
 
 def score_parttern(pattern, block, is_curent, space=False):
@@ -335,3 +321,15 @@ def check_win(board_game):
     if win == -100000:
         return True, "O"
     return False, ""
+
+
+def checkState(board):
+    pattern_dic = get_all_patterns(board)
+    if 'XXXXX' in pattern_dic or 'OXXXXX' in pattern_dic or 'XXXXXO' in pattern_dic:
+        return 100000
+    elif 'OOOOO' in pattern_dic or 'XOOOOO' in pattern_dic or 'OOOOOX' in pattern_dic:
+        return -100000
+    else:
+        if check_full(board):
+            return "tie"
+        return 0

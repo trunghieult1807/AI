@@ -1,10 +1,7 @@
-from multiprocessing.pool import ThreadPool
 import time
-from typing import Tuple
 from function import checkState, check_empty, get_all_patterns, possible_moves, BestMove
 import pygame
 import numpy as np
-from pygame import draw, font
 import random
 
 
@@ -35,7 +32,7 @@ if __name__ == "__main__":
 
     pygame.init()
 
-    WINDOW_SIZE = [600, 600]
+    WINDOW_SIZE = [500, 600]
     screen = pygame.display.set_mode(WINDOW_SIZE)
 
     pygame.display.set_caption("Caro Game")
@@ -82,6 +79,8 @@ if __name__ == "__main__":
                         elif row == 7 and column == 6:
                             newgame()
                             playFirst = False
+                else:
+                    print("out")
             # May choi
             if Player == "O" and drawDone:
                 # arrow = pygame.cursors.ball
@@ -116,10 +115,10 @@ if __name__ == "__main__":
         # Draw the grid screen2
         if playFirst is not None:
             screen.fill(BLACK)
-            IMAGE_O = pygame.image.load('./O.jpg').convert()
+            IMAGE_O = pygame.image.load('../carogame/o.png').convert()
             IMAGE_O = pygame.transform.scale(IMAGE_O, (WIDTH, WIDTH))
 
-            IMAGE_X = pygame.image.load('./X.jpg').convert()
+            IMAGE_X = pygame.image.load('../carogame/x.png').convert()
             IMAGE_X = pygame.transform.scale(IMAGE_X, (WIDTH, WIDTH))
             for row in range(12):
                 for column in range(12):
