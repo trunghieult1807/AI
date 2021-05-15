@@ -56,7 +56,7 @@ class CaroState:
         return x_hash + o_hash + h
     
     def copy(self):
-        copyState = CaroState.loadState((self.n_rows, self.n_cols), self.X_moves.copy(), 
+        copyState = self.loadState((self.n_rows, self.n_cols), self.X_moves.copy(),
                                          self.O_moves.copy(), self._winner)
         return copyState
 
@@ -183,6 +183,7 @@ class CaroState:
         if self.player() == X:
             new_state.X_moves.add(move)
         else:
+
             new_state.O_moves.add(move)
         return new_state
 

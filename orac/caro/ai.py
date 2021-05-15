@@ -1,4 +1,4 @@
-# from caro import Caro
+from . import palette
 
 
 def minimax_cutoff(state, current_player):
@@ -6,8 +6,9 @@ def minimax_cutoff(state, current_player):
 
     alpha, beta = -1000000, 1000000
     depth = 1
-    if current_player == "white":
+    if current_player == palette.player1:
         scores = [min_value_eval(state.result(action, current_player), alpha, beta, depth, current_player) for action in actions]
+        print(scores)
         return actions[scores.index(max(scores))]
     else:
         scores = [max_value_eval(state.result(action, current_player), alpha, beta, depth, current_player) for action in actions]
@@ -18,7 +19,7 @@ def max_value_eval(state, alpha, beta, depth, current_player):
     if depth == 0:
         return state.evaluate()
 
-    v = -10000
+    v = -1000000
     for action in state.top_actions(current_player):
         v = max(v, min_value_eval(state.result(action, current_player), alpha, beta, depth - 1, current_player))
         if v >= beta:
@@ -31,7 +32,7 @@ def min_value_eval(state, alpha, beta, depth, current_player):
     if depth == 0:
         return state.evaluate()
 
-    v = 10000
+    v = 1000000
     for action in state.top_actions(current_player):
         v = min(v, max_value_eval(state.result(action, current_player), alpha, beta, depth - 1, current_player))
         if v <= alpha:

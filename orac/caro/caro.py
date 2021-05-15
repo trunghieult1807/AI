@@ -1,15 +1,7 @@
 import pygame
 import re
 import copy
-
-# Colors
-COLOR_BLACK = (0, 0, 0)
-COLOR_WHITE = (255, 255, 255)
-COLOR_RED = (255, 0, 0)
-COLOR_BOARD = (133, 94, 66)
-COLOR_BUTTON = (255, 255, 0)
-COLOR_AC_BUTTON = (200, 200, 0)
-COLOR_GRAY = (100, 100, 100)
+from . import palette
 
 
 def text_objects(text, font, font_color):
@@ -45,20 +37,20 @@ def score_pattern(string_grid, pattern, player):
 
 
 def eval_pattern(string_grid):
-    if "W" not in string_grid and "B" not in string_grid:
+    if "O" not in string_grid and "X" not in string_grid:
         return 0
 
     eval_score = 0
 
     # Score X
-    X_ext = re.compile(r"[W.]+")
+    X_ext = re.compile(r"[X.]+")
     for pattern in X_ext.finditer(string_grid):
-        eval_score += score_pattern(string_grid, pattern, "W")
+        eval_score += score_pattern(string_grid, pattern, "X")
 
     # Score O
-    O_ext = re.compile(r"[B.]+")
+    O_ext = re.compile(r"[O.]+")
     for pattern in O_ext.finditer(string_grid):
-        eval_score -= score_pattern(string_grid, pattern, "B")
+        eval_score -= score_pattern(string_grid, pattern, "O")
 
     return eval_score
 
@@ -72,64 +64,65 @@ class Caro:
         self.player2_score = 0
         self.x_stone_pos = 1
         self.y_stone_pos = 1
-        self.menu_x_pos = 45 * 16
-        self.menu_y_pos = 45
+        self.menu_x_pos = self.area * (self.size + 2)
+        self.menu_y_pos = self.area
         self.menu_width = 125
         self.menu_height = self.area
-        self.stone = {"white": [], "black": []}
-        self.player_score = ''
+        self.stone = {palette.player1: [], palette.player2: []}
         self.winner = None
         self.screen = pygame.display.set_mode((self.w_h + self.menu_width + 2 * self.area, self.w_h + 45))
         pygame.display.set_caption("Caro")
-        # self.screen.fill(COLOR_BOARD)
+        # self.screen.fill(palette.COLOR_BOARD)
 
     @classmethod
-    def loadState(cls, size, white_stones, black_stones, player_win=None):
+    def loadState(cls, size, player1_stone, player2_stone, player_win=None):
         new_state = cls(size)
-        # print("hi", white_stones)
-        new_state.stone["white"] = white_stones
-        new_state.stone["black"] = black_stones
-        # print(new_state.stone["white"])
+        new_state.stone[palette.player1] = player1_stone
+        new_state.stone[palette.player2] = player2_stone
         new_state.winner = player_win
-        # print(new_state.stone)
+        print(new_state.stone)
         return new_state
 
     def copy(self):
-        copyState = self.loadState(self.size, copy.deepcopy(self.stone["white"]),
-                                   copy.deepcopy(self.stone["black"]), self.winner)
+        copyState = self.loadState(self.size, copy.deepcopy(self.stone[palette.player1]),
+                                   copy.deepcopy(self.stone[palette.player2]), self.winner)
         return copyState
 
     def draw_main(self):
-        for i in range(1, 16):
-            pygame.draw.line(self.screen, COLOR_BLACK,
+        for i in range(1, self.size + 2):
+            pygame.draw.line(self.screen, palette.COLOR_BLACK,
                              [45 * i, 45], [45 * i, self.w_h], 2)
-            pygame.draw.line(self.screen, COLOR_BLACK,
+            pygame.draw.line(self.screen, palette.COLOR_BLACK,
                              [45, 45 * i], [self.w_h, 45 * i], 2)
 
     def draw_score(self, player1_score, player2_score):
         self.player1_score, self.player2_score = player1_score, player2_score
-        self.text_draw("PLAYER 1", 45 * 16 + 65, self.w_h // 2 - 90,
-                       (100, 100, 100), 20)
-        # self.screen.blit(pygame.transform.scale(x, (20, 20)), (45 * 16 - 5, self.w_h // 2 - 102))
-        pygame.draw.circle(self.screen, COLOR_WHITE,
-                           (45 * 16 + 5, self.w_h // 2 - 90), 45 // 5)
-        self.text_draw(str(self.player1_score), 45 * 16 + 65, self.w_h // 2 - 30,
-                       (100, 100, 100), 45)
-        self.text_draw("PLAYER 2", 45 * 16 + 65, self.w_h // 2 + 20,
-                       COLOR_BLACK, 20)
-        # self.screen.blit(pygame.transform.scale(o, (20, 20)), (45 * 16 - 5, self.w_h // 2 + 8))
-        pygame.draw.circle(self.screen, COLOR_BLACK,
-                           (45 * 16 + 5, self.w_h // 2 + 20), 45 // 5)
-        self.text_draw(str(self.player2_score), 45 * 16 + 65,
-                       self.w_h // 2 + 80, COLOR_BLACK, 45)
+        self.text_draw("PLAYER 1", self.menu_x_pos + 70, self.w_h // 2 - 90,
+                       palette.COLOR_GRAY, 20)
+        pygame.draw.line(self.screen, palette.COLOR_RED,
+                         (self.menu_x_pos, self.w_h // 2 - 98),
+                         (self.menu_x_pos + 12, self.w_h // 2 - 86), 5)
+        pygame.draw.line(self.screen, palette.COLOR_RED,
+                         (self.menu_x_pos, self.w_h // 2 - 86),
+                         (self.menu_x_pos + 12, self.w_h // 2 - 98), 5)
+        self.text_draw(str(self.player1_score), self.menu_x_pos + 70, self.w_h // 2 - 30,
+                       palette.COLOR_GRAY, 45)
+        self.text_draw("PLAYER 2", self.menu_x_pos + 70, self.w_h // 2 + 20,
+                       palette.COLOR_GRAY, 20)
+        pygame.draw.circle(self.screen, palette.COLOR_RED,
+                           (self.menu_x_pos + 5, self.w_h // 2 + 20), 45 // 5)
+        pygame.draw.circle(self.screen, palette.COLOR_BOARD,
+                           (self.menu_x_pos + 5, self.w_h // 2 + 20), 45 // 8)
+        self.text_draw(str(self.player2_score), self.menu_x_pos + 65,
+                       self.w_h // 2 + 80, palette.COLOR_GRAY, 45)
 
     def interactive_button(self):
         # Draw buttons.
-        pygame.draw.rect(self.screen, COLOR_BUTTON,
+        pygame.draw.rect(self.screen, palette.COLOR_BUTTON,
                          (self.menu_x_pos, self.menu_y_pos, self.menu_width, self.menu_height))
-        pygame.draw.rect(self.screen, COLOR_BUTTON,
+        pygame.draw.rect(self.screen, palette.COLOR_BUTTON,
                          (self.menu_x_pos, self.menu_y_pos + 70, self.menu_width, self.menu_height))
-        pygame.draw.rect(self.screen, COLOR_BUTTON,
+        pygame.draw.rect(self.screen, palette.COLOR_BUTTON,
                          (self.menu_x_pos, self.w_h - 90, self.menu_width, self.menu_height))
         # Draw text on buttons.
         self.text_draw("NEW GAME", self.menu_x_pos + 59, self.menu_y_pos + 25, (200, 0, 0), 20)
@@ -141,21 +134,21 @@ class Caro:
         # New game.
         if self.menu_width + self.menu_x_pos > mouse[0] > self.menu_x_pos and \
                 self.menu_y_pos + self.menu_height > mouse[1] > self.menu_y_pos:
-            pygame.draw.rect(self.screen, COLOR_AC_BUTTON,
+            pygame.draw.rect(self.screen, palette.COLOR_AC_BUTTON,
                              (self.menu_x_pos, self.menu_y_pos, self.menu_width, self.menu_height))
-            self.text_draw("START", self.menu_x_pos + 59, self.menu_y_pos + 25, COLOR_RED, 20)
+            self.text_draw("START", self.menu_x_pos + 59, self.menu_y_pos + 25, palette.COLOR_RED, 20)
 
         # Next game.
         if self.menu_width + self.menu_x_pos > mouse[0] > self.menu_x_pos and \
                 self.menu_y_pos + 70 + self.menu_height > mouse[1] > self.menu_y_pos + 70:
-            pygame.draw.rect(self.screen, COLOR_AC_BUTTON,
+            pygame.draw.rect(self.screen, palette.COLOR_AC_BUTTON,
                              (self.menu_x_pos, self.menu_y_pos + 70, self.menu_width, self.menu_height))
             self.text_draw("Next game", self.menu_x_pos + 62, self.menu_y_pos + 95, (0, 0, 225), 20)
 
         # Quit.
         if self.menu_width + self.menu_x_pos > mouse[0] > self.menu_x_pos and \
                 self.w_h - 90 + self.menu_height > mouse[1] > self.w_h - 90:
-            pygame.draw.rect(self.screen, COLOR_AC_BUTTON,
+            pygame.draw.rect(self.screen, palette.COLOR_AC_BUTTON,
                              (self.menu_x_pos, self.w_h - 90, self.menu_width, self.menu_height))
             self.text_draw("Quit", self.menu_x_pos + 56, self.w_h - 65, (225, 0, 225), 20)
             if pygame.mouse.get_pressed(3)[0] == 1:
@@ -179,36 +172,66 @@ class Caro:
 
         return self.x_stone_pos, self.y_stone_pos
 
-    def play_draw_stone(self, stone, current_player, stone_color, x_stone_pos, y_stone_pos, game):
+    def play_draw_stone(self, current_player, x_stone_pos, y_stone_pos, game):
         if (x_stone_pos, y_stone_pos) in self.stone["white"]:
             pass
         elif (x_stone_pos, y_stone_pos) in self.stone["black"]:
             pass
         else:
-            pygame.draw.circle(self.screen, stone_color,
-                               (x_stone_pos + 45 // 2, y_stone_pos + 45 // 2), 45 // 2)
+            if current_player == palette.player1:
+                pygame.draw.line(self.screen, palette.COLOR_BLACK,
+                                 (x_stone_pos + 8, y_stone_pos + 4),
+                                 (x_stone_pos + self.area - 8, y_stone_pos + self.area - 4), 8)
+                pygame.draw.line(self.screen, palette.COLOR_BLACK,
+                                 (x_stone_pos + 8, y_stone_pos + self.area - 4),
+                                 (x_stone_pos + self.area - 8, y_stone_pos + 4), 8)
+            elif current_player == palette.player2:
+                pygame.draw.circle(self.screen, palette.COLOR_WHITE,
+                                   (x_stone_pos + self.area / 2 + 1, y_stone_pos + self.area / 2 + 1.5), 45 / 2 - 2)
+                pygame.draw.circle(self.screen, palette.COLOR_BOARD,
+                                   (x_stone_pos + self.area / 2 + 1, y_stone_pos + self.area / 2 + 1.5), 45 / 2 - 8)
             self.stone[current_player].append((x_stone_pos, y_stone_pos))
-            if current_player == "black":
-                game.text_draw("PLAYER 1", 45 * 16 + 65, game.w_h // 2 - 90,
-                               COLOR_GRAY, 20)
-                game.text_draw("PLAYER 2", 45 * 16 + 65, game.w_h // 2 + 20,
-                               COLOR_RED, 20)
-            else:
-                game.text_draw("PLAYER 1", 45 * 16 + 65, game.w_h // 2 - 90,
-                               COLOR_RED, 20)
-                game.text_draw("PLAYER 2", 45 * 16 + 65, game.w_h // 2 + 20,
-                               COLOR_GRAY, 20)
+            if current_player == palette.player1:
+                pygame.draw.line(self.screen, palette.COLOR_GRAY,
+                                 (self.menu_x_pos, self.w_h // 2 - 98),
+                                 (self.menu_x_pos + 12, self.w_h // 2 - 86), 5)
+                pygame.draw.line(self.screen, palette.COLOR_GRAY,
+                                 (self.menu_x_pos, self.w_h // 2 - 86),
+                                 (self.menu_x_pos + 12, self.w_h // 2 - 98), 5)
+                pygame.draw.circle(self.screen, palette.COLOR_RED,
+                                   (self.menu_x_pos + 5, self.w_h // 2 + 20), 45 // 5)
+                pygame.draw.circle(self.screen, palette.COLOR_BOARD,
+                                   (self.menu_x_pos + 5, self.w_h // 2 + 20), 45 // 8)
+                game.text_draw("PLAYER 1", self.menu_x_pos + 70, self.w_h // 2 - 90,
+                               palette.COLOR_GRAY, 20)
+                game.text_draw("PLAYER 2", self.menu_x_pos + 70, self.w_h // 2 + 20,
+                               palette.COLOR_RED, 20)
+            elif current_player == palette.player2:
+                pygame.draw.line(self.screen, palette.COLOR_RED,
+                                 (self.menu_x_pos, self.w_h // 2 - 98),
+                                 (self.menu_x_pos + 12, self.w_h // 2 - 86), 5)
+                pygame.draw.line(self.screen, palette.COLOR_RED,
+                                 (self.menu_x_pos, self.w_h // 2 - 86),
+                                 (self.menu_x_pos + 12, self.w_h // 2 - 98), 5)
+                pygame.draw.circle(self.screen, palette.COLOR_GRAY,
+                                   (self.menu_x_pos + 5, self.w_h // 2 + 20), 45 // 5)
+                pygame.draw.circle(self.screen, palette.COLOR_BOARD,
+                                   (self.menu_x_pos + 5, self.w_h // 2 + 20), 45 // 8)
+                game.text_draw("PLAYER 1", self.menu_x_pos + 70, self.w_h // 2 - 90,
+                               palette.COLOR_RED, 20)
+                game.text_draw("PLAYER 2", self.menu_x_pos + 70, self.w_h // 2 + 20,
+                               palette.COLOR_GRAY, 20)
         return self.stone
 
     def check_win(self, stone, player_score, current_player):
-        self.stone, self.player_score = stone, player_score
+        self.stone = stone
         result = None
         if len(self.stone[current_player]) >= 5:
             stone_sort = sorted(self.stone[current_player])
-            if current_player == "white":
-                opponent_stone_sort = sorted(self.stone["black"])
+            if current_player == palette.player2:
+                opponent_stone_sort = sorted(self.stone[palette.player1])
             else:
-                opponent_stone_sort = sorted(self.stone["white"])
+                opponent_stone_sort = sorted(self.stone[palette.player2])
             for x, y in stone_sort:
                 # Vertical
                 cnt = 0
@@ -218,7 +241,7 @@ class Caro:
                         if cnt == 4 and ((x, y - 45) not in opponent_stone_sort or (
                                 x, y + 45 * (i + 1)) not in opponent_stone_sort) and (
                                 (x, y - 45) not in stone_sort and (x, y + 45 * (i + 1)) not in stone_sort):
-                            self.player_score += 1
+                            player_score += 1
                             self.winner = current_player
                             result = True
                             break
@@ -234,7 +257,7 @@ class Caro:
                         if cnt == 4 and ((x - 45, y) not in opponent_stone_sort or (
                                 x + 45 * (i + 1), y) not in opponent_stone_sort) and (
                                 (x - 45, y) not in stone_sort and (x + 45 * (i + 1), y) not in stone_sort):
-                            self.player_score += 1
+                            player_score += 1
                             self.winner = current_player
                             result = True
                             break
@@ -250,7 +273,7 @@ class Caro:
                                 x + 45 * (i + 1), y + 45 * (i + 1)) not in opponent_stone_sort) and (
                                 (x - 45, y - 45) not in stone_sort and (
                                 x + 45 * (i + 1), y + 45 * (i + 1)) not in stone_sort):
-                            self.player_score += 1
+                            player_score += 1
                             self.winner = current_player
                             result = True
                             break
@@ -264,27 +287,27 @@ class Caro:
                                 x + 45 * (i + 1), y - 45 * (i + 1)) not in opponent_stone_sort) and (
                                 (x - 45, y + 45) not in stone_sort and (
                                 x + 45 * (i + 1), y - 45 * (i + 1)) not in stone_sort):
-                            self.player_score += 1
+                            player_score += 1
                             self.winner = current_player
                             result = True
                             break
         if result:
-            if self.winner == "white":
-                self.text_draw("WIN", 45 * 16 + 65, self.w_h // 2 - 120,
-                               (100, 100, 100), 45)
+            if self.winner == palette.player2:
+                self.text_draw("WIN", self.menu_x_pos + 65, self.w_h // 2 - 120,
+                               palette.COLOR_RED, 45)
 
-            elif self.winner == "black":
-                self.text_draw("WIN", 45 * 16 + 65, self.w_h // 2 + 120,
-                               COLOR_BLACK, 45)
-        return self.player_score
+            elif self.winner == palette.player1:
+                self.text_draw("WIN", self.menu_x_pos + 65, self.w_h // 2 + 120,
+                               palette.COLOR_RED, 45)
+        return player_score
 
     def actions(self):
         return [(x, y) for x in range(self.area, self.size * self.area, self.area)
                 for y in range(self.area, self.size * self.area, self.area)
-                if (x, y) not in self.stone["black"] + self.stone["white"]]
+                if (x, y) not in self.stone[palette.player1] + self.stone[palette.player2]]
 
     def local_successor(self, expand=1):
-        marked = self.stone["black"] + self.stone["white"]
+        marked = self.stone[palette.player1] + self.stone[palette.player2]
         if len(marked) == 0:
             return [(self.size // 2, self.size // 2)]
         min_row_to_expand = max(min(m[0] for m in marked) - expand * self.area, 0)
@@ -297,68 +320,62 @@ class Caro:
                                      min_col_to_expand <= m[1] <= max_col_to_expand, all_moves))
 
     def result(self, move, current_player):
-        if move in self.stone["black"] or move in self.stone["white"]:
+        if move in self.stone[palette.player1] or move in self.stone[palette.player2]:
             return
         new_state = self.copy()
-        new_state.stone[current_player].append((move[0], move[1]))
+        new_state.stone[current_player].append(move)
         return new_state
 
     def utility(self):
-        if self.winner == "black":
-            return 100000
-        elif self.winner == "white":
-            return -100000
+        if self.winner == palette.player1:
+            return 1000000
+        elif self.winner == palette.player2:
+            return -1000000
         return 0
 
     def terminal(self):
         if self.winner is not None:
             return True
-        if len(self.stone["black"] + self.stone["white"]) < (self.size ** 2):
+        if len(self.stone[palette.player1] + self.stone[palette.player2]) < (self.size ** 2):
             return False
         return True
 
     def get_string_grid(self, pos, direction):
-        """
-        Get string patterns along a direction
-        @Params:
-            pos: (x, y) 2D-position
-            dir: HORIZONTAL/VERTICAL/DIAGONAL_L/DIAGONAL_R
-        """
         x, y = pos
         result = ""
         if direction == "horizontal":
             for col in range(self.area, self.area * self.size, self.area):
-                if (x, col) in self.stone["white"]:
-                    result += "W"
-                elif (x, col) in self.stone["black"]:
-                    result += "B"
+                if (x, col) in self.stone[palette.player2]:
+                    result += "O"
+                elif (x, col) in self.stone[palette.player1]:
+                    result += "X"
                 else:
                     result += "."
         elif direction == "vertical":
             for row in range(self.area, self.area * self.size, self.area):
-                if (row, y) in self.stone["white"]:
-                    result += "W"
-                elif (row, y) in self.stone["black"]:
-                    result += "B"
+                if (row, y) in self.stone[palette.player2]:
+                    result += "O"
+                elif (row, y) in self.stone[palette.player1]:
+                    result += "X"
                 else:
                     result += "."
         elif direction == "down_diagonal":
             i, j = x - min(x, y), y - min(x, y)
             while i < self.area * self.size and j < self.area * self.size:
-                if (i, j) in self.stone["white"]:
-                    result += "W"
-                elif (i, j) in self.stone["black"]:
-                    result += "B"
+                if (i, j) in self.stone[palette.player2]:
+                    result += "O"
+                elif (i, j) in self.stone[palette.player1]:
+                    result += "X"
                 else:
                     result += "."
                 i, j = i + self.area, j + self.area
         elif direction == "up_diagonal":
             i, j = x - min(x, y), y + min(x, y)
             while i < self.area * self.size and j >= 0:
-                if (i, j) in self.stone["white"]:
-                    result += "W"
-                elif (i, j) in self.stone["black"]:
-                    result += "B"
+                if (i, j) in self.stone[palette.player2]:
+                    result += "O"
+                elif (i, j) in self.stone[palette.player1]:
+                    result += "X"
                 else:
                     result += "."
                 i, j = i + self.area, j - self.area
@@ -392,13 +409,10 @@ class Caro:
         return evaluate_score
 
     def top_actions(self, current_player, n=10):
-        """
-        Get top 'n' legal moves
-        """
         all_moves = self.actions()
         evaluations = [self.result(move, current_player).evaluate() for move in all_moves]
         sorted_moves = [move for move, _ in sorted(zip(all_moves, evaluations),
                                                    key=lambda x: x[1],
-                                                   reverse=current_player == "white")]
+                                                   reverse=current_player == palette.player1)]
 
         return sorted_moves if n >= len(all_moves) else sorted_moves[:n]
