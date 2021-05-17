@@ -8,5 +8,5 @@ COLOR_BOARD = (255, 204, 102)
 COLOR_BUTTON = (255, 255, 0)
 COLOR_AC_BUTTON = (200, 200, 0)
 
-player1 = "black"
-player2 = "white"
+ai = "black"
+human = "white"

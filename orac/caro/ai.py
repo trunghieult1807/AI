@@ -6,7 +6,7 @@ def minimax_cutoff(state, current_player):
 
     alpha, beta = -1000000, 1000000
     depth = 1
-    if current_player == palette.player1:
+    if current_player == palette.ai:
         scores = [min_value_eval(state.result(action, current_player), alpha, beta, depth, current_player) for action in actions]
         print(scores)
         return actions[scores.index(max(scores))]
